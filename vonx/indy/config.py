@@ -212,7 +212,14 @@ class AgentCfg:
                 type_spec = {
                     "schema": cred_type["definition"],
                 }
-                for k in ("cardinality_fields", "description", "issuer_url", "mapping", "topic"):
+                for k in (
+                    "cardinality_fields",
+                    "description",
+                    "issuer_url",
+                    "mapping",
+                    "topic",
+                    "credential"
+                ):
                     if k in params:
                         type_spec[k] = params[k]
                 cred_specs.append(type_spec)

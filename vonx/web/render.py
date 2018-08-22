@@ -52,7 +52,13 @@ async def render_form(form: dict, request: web.Request) -> web.Response:
     if proof_meta:
         try:
             client = service_mgr.get_client()
-            proof_req = await client.generate_proof_request(proof_meta["id"])
+            
+            # credential id is now required for proof requests
+            params = request.rel_url.query
+            credential_id = params.get('credential_id')
+            
+            proof_req = await client.generate_proof_request(
+                proof_meta["id"], credential_id)
 
             params = {}
             if "params" in proof_meta:

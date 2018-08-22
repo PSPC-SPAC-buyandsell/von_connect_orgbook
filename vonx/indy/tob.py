@@ -71,9 +71,9 @@ def assemble_issuer_spec(config: dict) -> dict:
             "endpoint": type_spec.get("issuer_url") or issuer_spec["issuer"]["url"],
             "schema": schema.name,
             "version": schema.version,
-            "topic": type_spec["topic"],
+            "topic": type_spec["topic"]
         }
-        for k in ("mapping", "cardinality_fields"):
+        for k in ("mapping", "cardinality_fields", "credential"):
             if k in type_spec:
                 ctype[k] = type_spec[k]
         ctypes.append(ctype)

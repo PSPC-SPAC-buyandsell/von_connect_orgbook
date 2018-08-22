@@ -334,6 +334,7 @@ class GenerateProofRequestReq(IndyServiceReq):
     """
     _fields = (
         ("spec_id", str),
+        ("credential_id", str),
     )
 
 

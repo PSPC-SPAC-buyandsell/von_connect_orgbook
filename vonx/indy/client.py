@@ -315,15 +315,17 @@ class IndyClient:
             ProofSpecStatus)
         return result.spec_id
 
-    async def generate_proof_request(self, spec_id: str) -> ProofRequest:
+    async def generate_proof_request(
+            self, spec_id: str, credential_id: str) -> ProofRequest:
         """
         Generate a proof request based on a previously-registered proof request spec
 
         Args:
             spec_id: the registered proof request spec identifier
         """
+
         return await self._fetch(
-            GenerateProofRequestReq(spec_id),
+            GenerateProofRequestReq(spec_id, credential_id),
             ProofRequest)
 
     async def request_proof(self, connection_id: str, proof_req: ProofRequest,

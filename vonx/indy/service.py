@@ -93,7 +93,7 @@ def _make_id(pfx: str = '', length=12) -> str:
     return pfx + ''.join(random.choice(string.ascii_letters) for _ in range(length))
 
 
-def _prepare_proof_request(spec: ProofSpecCfg) -> ProofRequest:
+def _prepare_proof_request(spec: ProofSpecCfg, credential_id: str) -> ProofRequest:
     """
     Prepare the JSON payload for a proof request
 
@@ -107,9 +107,10 @@ def _prepare_proof_request(spec: ProofSpecCfg) -> ProofRequest:
         for attr in schema["attributes"]:
             req_attrs["{}_{}_uuid".format(s_uniq, attr)] = {
                 "name": attr,
-                "restrictions": [{
-                    "schema_id": s_id,
-                }]
+                "credential_id": credential_id
+                # "restrictions": [{
+                #     "schema_id": s_id,
+                # }]
             }
     return ProofRequest({
         "name": spec.spec_id,
@@ -656,6 +657,12 @@ class IndyService(ServiceBase):
         """
 
         cred_offer = request.cred_offer
+
+        LOGGER.info('---')
+        LOGGER.info(json.dumps(cred_offer.offer))
+        LOGGER.info(json.dumps(request.data))
+        LOGGER.info(json.dumps(cred_data))
+
         (cred_json, cred_revoc_id) = await issuer.instance.create_cred(
             json.dumps(cred_offer.offer),
             request.data,
@@ -855,7 +862,8 @@ class IndyService(ServiceBase):
             msg = IndyServiceFail("Unregistered proof spec: {}".format(spec_id))
         return msg
 
-    async def _generate_proof_request(self, spec_id: str) -> ProofRequest:
+    async def _generate_proof_request(
+            self, spec_id: str, credential_id: str) -> ProofRequest:
         """
         Create a proof request from a previously registered proof specification
         """
@@ -863,8 +871,9 @@ class IndyService(ServiceBase):
         if not spec:
             raise IndyConfigError("Proof specification not defined: {}".format(spec_id))
         if not spec.synced:
+            LOGGER.info(spec)
             raise IndyConfigError("Proof specification not synced: {}".format(spec_id))
-        return _prepare_proof_request(spec)
+        return _prepare_proof_request(spec, credential_id)
 
     async def _request_proof(self, connection_id: str, proof_req: ProofRequest,
                              cred_ids: set = None, params: dict = None) -> VerifiedProof:
@@ -1052,7 +1061,8 @@ class IndyService(ServiceBase):
 
         elif isinstance(request, GenerateProofRequestReq):
             try:
-                reply = await self._generate_proof_request(request.spec_id)
+                reply = await self._generate_proof_request(
+                    request.spec_id, request.credential_id)
             except IndyError as e:
                 reply = IndyServiceFail(str(e))
 
