@@ -299,7 +299,7 @@ async def filter_credential(request):
         - proof_name - the service name to derive proof request dependencies
 
     Expected query parameters are:
-        - fetch - "all" to return all matching credentials, 
+        - fetch - "all" to return all matching credentials,
                   any other value will filter most recent per schema
 
     Returns: A list of the credentials
@@ -371,6 +371,7 @@ async def get_credential_dependencies(request):
     visited_dids = None
 
     try:
+        LOGGER.info("get_request_json views.py");
         request_body = await get_request_json(request)
         dependency_graph = request_body["dependency_graph"]
         visited_dids = request_body["visited_dids"]
@@ -378,6 +379,7 @@ async def get_credential_dependencies(request):
         pass
 
     try:
+        LOGGER.info("client.get_credential_dependencies views.py");
         client = indy_client(request)
         result = await client.get_credential_dependencies(
             schema_name,
@@ -394,4 +396,7 @@ async def get_credential_dependencies(request):
 
     except IndyClientError as e:
         ret = {"success": False, "result": str(e)}
+
+    LOGGER.info("End get-credential-depenedncies views.py");
+
     return web.json_response(ret)

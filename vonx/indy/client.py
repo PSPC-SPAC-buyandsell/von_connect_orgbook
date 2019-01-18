@@ -344,6 +344,8 @@ class IndyClient:
             origin_did: the DID of the schema issuer
             dependency_graph: dependency graph for this dependency
         """
+        LOGGER.info("Starting client credential dependency lookup for schema: %s", name)
+
         return await self._fetch(
             messages.CredentialDependenciesReq(
                 name, version, origin_did, dependency_graph, visited_dids))
