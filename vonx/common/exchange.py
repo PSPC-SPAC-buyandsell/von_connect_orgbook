@@ -945,25 +945,32 @@ class RequestExecutor(MessageProcessor):
         Return a connection pool associated with this event loop, which allows HTTP
         connection reuse
         """
+        LOGGER.debug("Requesting TCP connector");
         if not self._connector:
+            LOGGER.debug("Creating new TCP connector");
             force_close = os.getenv('HTTP_FORCE_CLOSE_CONNECTIONS')
             force_close = bool(force_close) and force_close != 'false'
             self._connector = LoggingTCPConnector(force_close=force_close)
+        LOGGER.debug("Returning TCP connector");
         return self._connector
 
     def http_client(self, *args, **kwargs) -> aiohttp.ClientSession:
         """
         Construct an HTTP client using the shared connection pool
         """
+        LOGGER.debug("Requesting HTTP client");
         no_reuse = os.getenv('HTTP_NO_CONNECTOR_REUSE')
         no_reuse = bool(no_reuse) and no_reuse != 'false'
         if 'connector' not in kwargs and not no_reuse:
+            LOGGER.debug("Creating new TCP connector");
             kwargs['connector'] = self.tcp_connector
             kwargs['connector_owner'] = False
         keep_cookies = os.getenv('HTTP_PRESERVE_COOKIES')
         keep_cookies = bool(keep_cookies) and keep_cookies != 'false'
         if 'cookie_jar' not in kwargs and not keep_cookies:
+            LOGGER.debug("Create dummy cookie jar");
             kwargs['cookie_jar'] = aiohttp.DummyCookieJar()
+        LOGGER.debug("Returning HTTP client");
         return aiohttp.ClientSession(*args, **kwargs)
 
     @property
